@@ -1,26 +1,15 @@
 import { useState } from 'react';
-import type { FormEvent } from 'react';
-
-// Todoに必要なデータと、それぞれの型を定義します。
-type Todo = {
-  id: string;
-  title: string;
-  completed: boolean;
-};
+import TodoForm from './components/TodoForm';
+import TodoItem from './components/TodoItem';
+import type { Todo } from './types/todo';
 
 export default function App() {
   // state（状態）が変わると、Reactが画面を更新します。
-  const [text, setText] = useState('');
   const [todos, setTodos] = useState<Todo[]>([]);
 
-  function addTodo(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault(); // フォーム送信によるページの再読み込みを防ぐ
-    const title = text.trim();
-    if (title === '') return;
-
+  function addTodo(title: string) {
     const newTodo: Todo = { id: crypto.randomUUID(), title, completed: false };
     setTodos((currentTodos) => [...currentTodos, newTodo]);
-    setText('');
   }
 
   function toggleTodo(id: string) {
@@ -45,20 +34,7 @@ export default function App() {
         <h1>はじめてのTodo</h1>
       </header>
 
-      <form onSubmit={addTodo} className="add-form">
-        <label htmlFor="todo-input">新しいTodo</label>
-        <div className="input-row">
-          <input
-            id="todo-input"
-            type="text"
-            value={text}
-            onChange={(event) => setText(event.target.value)}
-            placeholder="例：Reactの勉強をする"
-            maxLength={200}
-          />
-          <button type="submit" disabled={text.trim() === ''}>追加</button>
-        </div>
-      </form>
+      <TodoForm onAdd={addTodo} />
 
       <p className="summary" role="status">
         全{todos.length}件・残り{remainingCount}件
@@ -69,22 +45,12 @@ export default function App() {
       ) : (
         <ul className="todo-list">
           {todos.map((todo) => (
-            <li key={todo.id} className={todo.completed ? 'completed' : ''}>
-              <label className="todo-label">
-                <input
-                  type="checkbox"
-                  checked={todo.completed}
-                  onChange={() => toggleTodo(todo.id)}
-                />
-                <span>{todo.title}</span>
-              </label>
-              <button
-                type="button"
-                className="delete-button"
-                onClick={() => deleteTodo(todo.id)}
-                aria-label={`${todo.title}を削除`}
-              >削除</button>
-            </li>
+            <TodoItem
+              key={todo.id}
+              todo={todo}
+              onToggle={toggleTodo}
+              onDelete={deleteTodo}
+            />
           ))}
         </ul>
       )}

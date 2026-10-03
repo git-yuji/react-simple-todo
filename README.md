@@ -26,8 +26,11 @@ npm run dev
 ## コードを読む順番
 
 1. `src/main.tsx`：Reactの画面をHTMLに表示する入口です。
-2. `src/App.tsx`：画面とTodo操作をまとめています。
-3. `src/style.css`：見た目とスマートフォン向けの調整です。
+2. `src/App.tsx`：Todo一覧の状態と追加・完了切り替え・削除を管理します。
+3. `src/components/TodoForm.tsx`：入力文字の状態と追加フォームを管理します。
+4. `src/components/TodoItem.tsx`：1件のTodoを表示します。
+5. `src/types/todo.ts`：複数のコンポーネントで共有するTodoの型です。
+6. `src/style.css`：見た目とスマートフォン向けの調整です。
 
 ## 学習ポイント
 
@@ -40,6 +43,15 @@ npm run dev
 - **type Todo**：IDとタイトルは`string`、完了状態は`boolean`として定義します。
 - **useState<Todo[]>**：Todoの配列を状態として保持することを指定します。
 - **FormEvent<HTMLFormElement>**：フォーム送信イベントの型を指定します。
+- **props**：親の`App`から子のコンポーネントへ、データや関数を渡します。
+
+### propsの流れ
+
+`App`は`TodoForm`に`onAdd={addTodo}`を渡します。フォームを送信すると、`TodoForm`が`onAdd(title)`を呼び、`App`がTodo一覧を更新します。入力文字は`TodoForm`内で管理します。
+
+`TodoItem`には`todo`と`onToggle`・`onDelete`を渡します。チェックや削除の操作では、受け取った関数にTodoのIDを渡します。Todo一覧を更新する処理は`App`にまとまっています。
+
+`TodoFormProps`と`TodoItemProps`で、受け取るデータや関数の型を定義しています。
 
 JSXを含むTypeScriptファイルの拡張子は`.tsx`です。`tsconfig.json`で型チェックの設定を管理します。
 
