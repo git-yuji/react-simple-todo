@@ -1,21 +1,29 @@
 import { useState } from 'react';
+import type { FormEvent } from 'react';
+
+// Todoに必要なデータと、それぞれの型を定義します。
+type Todo = {
+  id: string;
+  title: string;
+  completed: boolean;
+};
 
 export default function App() {
   // state（状態）が変わると、Reactが画面を更新します。
   const [text, setText] = useState('');
-  const [todos, setTodos] = useState([]);
+  const [todos, setTodos] = useState<Todo[]>([]);
 
-  function addTodo(event) {
+  function addTodo(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); // フォーム送信によるページの再読み込みを防ぐ
     const title = text.trim();
     if (title === '') return;
 
-    const newTodo = { id: crypto.randomUUID(), title, completed: false };
+    const newTodo: Todo = { id: crypto.randomUUID(), title, completed: false };
     setTodos((currentTodos) => [...currentTodos, newTodo]);
     setText('');
   }
 
-  function toggleTodo(id) {
+  function toggleTodo(id: string) {
     // mapで対象のTodoだけを更新した、新しい配列を作ります。
     setTodos((currentTodos) =>
       currentTodos.map((todo) =>
@@ -24,7 +32,7 @@ export default function App() {
     );
   }
 
-  function deleteTodo(id) {
+  function deleteTodo(id: string) {
     // filterで削除対象以外のTodoを残します。
     setTodos((currentTodos) => currentTodos.filter((todo) => todo.id !== id));
   }
