@@ -1,6 +1,6 @@
 # はじめてのReact Todoアプリ
 
-ReactとViteを使った、初心者向けの小さなTodoアプリです。JavaScriptで実装しています。
+ReactとViteを使った、初心者向けの小さなTodoアプリです。TypeScriptで実装しています。
 
 ## 起動方法
 
@@ -25,8 +25,8 @@ npm run dev
 
 ## コードを読む順番
 
-1. `src/main.jsx`：Reactの画面をHTMLに表示する入口です。
-2. `src/App.jsx`：画面とTodo操作をまとめています。
+1. `src/main.tsx`：Reactの画面をHTMLに表示する入口です。
+2. `src/App.tsx`：画面とTodo操作をまとめています。
 3. `src/style.css`：見た目とスマートフォン向けの調整です。
 
 ## 学習ポイント
@@ -37,6 +37,11 @@ npm run dev
 - **filter**：指定したTodoを除外したり、未完了の件数を求めたりします。
 - **スプレッド構文**：元の配列やオブジェクトを直接書き換えず、新しいものを作ります。
 - **key**：Reactが各Todoを識別できるよう、一意のIDを渡します。
+- **type Todo**：IDとタイトルは`string`、完了状態は`boolean`として定義します。
+- **useState<Todo[]>**：Todoの配列を状態として保持することを指定します。
+- **FormEvent<HTMLFormElement>**：フォーム送信イベントの型を指定します。
+
+JSXを含むTypeScriptファイルの拡張子は`.tsx`です。`tsconfig.json`で型チェックの設定を管理します。
 
 まずは見出しや色を変更し、次に「完了したTodoだけを表示する」機能に挑戦してみてください。
 
@@ -48,10 +53,11 @@ npm run dev
 4. 「削除」で対象のTodoだけが消える。最後の1件を消すと空の案内が表示される。
 
 ```sh
+npm run typecheck
 npm run build
 npm run preview
 ```
 
-`build`は公開用ファイルを`dist`に作成し、`preview`はその結果をローカルで確認します。
+`typecheck`は型の誤りを確認します。`build`は型チェック後に公開用ファイルを`dist`に作成し、`preview`はその結果をローカルで確認します。
 
-公式資料：[React](https://react.dev/learn) / [Vite](https://vite.dev/guide/)
+公式資料：[React](https://react.dev/learn) / [Vite](https://vite.dev/guide/) / [TypeScriptの設定](https://www.typescriptlang.org/tsconfig/)
