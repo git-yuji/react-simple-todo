@@ -1,11 +1,16 @@
 import { useState } from 'react';
 import TodoForm from './components/TodoForm';
 import TodoItem from './components/TodoItem';
+import TodoFilters from './components/TodoFilters';
 import type { Todo } from './types/todo';
+import { filterTodos } from './utils/filterTodos';
+import type { TodoStatus } from './utils/filterTodos';
 
 export default function App() {
   // state（状態）が変わると、Reactが画面を更新します。
   const [todos, setTodos] = useState<Todo[]>([]);
+  const [query, setQuery] = useState('');
+  const [status, setStatus] = useState<TodoStatus>('all');
 
   function addTodo(title: string) {
     const newTodo: Todo = { id: crypto.randomUUID(), title, completed: false };
@@ -27,6 +32,12 @@ export default function App() {
   }
 
   const remainingCount = todos.filter((todo) => !todo.completed).length;
+  const visibleTodos = filterTodos(todos, query, status);
+
+  function resetFilters() {
+    setQuery('');
+    setStatus('all');
+  }
 
   return (
     <main className="todo-app">
@@ -36,15 +47,25 @@ export default function App() {
 
       <TodoForm onAdd={addTodo} />
 
+      <TodoFilters
+        query={query}
+        status={status}
+        onQueryChange={setQuery}
+        onStatusChange={setStatus}
+        onReset={resetFilters}
+      />
+
       <p className="summary" role="status">
-        全{todos.length}件・残り{remainingCount}件
+        全{todos.length}件・残り{remainingCount}件・表示{visibleTodos.length}件
       </p>
 
       {todos.length === 0 ? (
         <p className="empty">Todoはまだありません。</p>
+      ) : visibleTodos.length === 0 ? (
+        <p className="empty">条件に一致するTodoはありません。</p>
       ) : (
         <ul className="todo-list">
-          {todos.map((todo) => (
+          {visibleTodos.map((todo) => (
             <TodoItem
               key={todo.id}
               todo={todo}
