@@ -21,7 +21,7 @@ h1 { margin: 0; font-size: clamp(24px, 5vw, 32px); }
 .description { margin: 8px 0 28px; color: #64748b; }
 .add-form > label { display: block; margin-bottom: 8px; font-weight: 600; }
 .input-row { display: flex; gap: 8px; }
-input[type='text'] {
+input[type='text'], input[type='search'] {
   width: 100%; min-width: 0; padding: 12px;
   border: 1px solid #cbd5e1; border-radius: 8px; font: inherit;
 }
@@ -31,6 +31,15 @@ button[type='submit']:hover { background: #1d4ed8; }
 button:disabled { opacity: .45; cursor: not-allowed; }
 :focus-visible { outline: 3px solid #60a5fa; outline-offset: 3px; }
 .summary { margin: 24px 0 12px; font-size: 14px; color: #475569; }
+.todo-filters { margin-top: 24px; }
+.todo-filters > label { display: block; margin-bottom: 8px; font-weight: 600; }
+.filter-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 12px; }
+.status-filters { display: flex; flex-wrap: wrap; gap: 8px; }
+.status-filters button { padding: 8px 12px; background: #f1f5f9; color: #475569; }
+.status-filters button:hover { background: #e2e8f0; }
+.status-filters button[aria-pressed='true'] { background: #2563eb; color: white; }
+.reset-filters { padding: 8px 12px; background: #f1f5f9; color: #475569; font-size: 14px; }
+.reset-filters:hover:enabled { background: #e2e8f0; }
 .empty { padding: 28px 16px; background: #f8fafc; border-radius: 10px; text-align: center; color: #64748b; }
 .todo-list { margin: 0; padding: 0; list-style: none; }
 .todo-list li { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid #e2e8f0; }
