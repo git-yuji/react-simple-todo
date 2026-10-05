@@ -5,30 +5,21 @@ import TodoFilters from './components/TodoFilters';
 import type { Todo } from './types/todo';
 import { filterTodos } from './utils/filterTodos';
 import type { TodoStatus } from './utils/filterTodos';
+import { useStoredTodos } from './hooks/useStoredTodos';
 
 export default function App() {
   // state（状態）が変わると、Reactが画面を更新します。
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const { todos, storageError, changeTodo, toggleTodo } = useStoredTodos();
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState<TodoStatus>('all');
 
   function addTodo(title: string) {
     const newTodo: Todo = { id: crypto.randomUUID(), title, completed: false };
-    setTodos((currentTodos) => [...currentTodos, newTodo]);
-  }
-
-  function toggleTodo(id: string) {
-    // mapで対象のTodoだけを更新した、新しい配列を作ります。
-    setTodos((currentTodos) =>
-      currentTodos.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo,
-      ),
-    );
+    changeTodo({ type: 'add', todo: newTodo });
   }
 
   function deleteTodo(id: string) {
-    // filterで削除対象以外のTodoを残します。
-    setTodos((currentTodos) => currentTodos.filter((todo) => todo.id !== id));
+    changeTodo({ type: 'delete', id });
   }
 
   const remainingCount = todos.filter((todo) => !todo.completed).length;
@@ -75,7 +66,8 @@ export default function App() {
           ))}
         </ul>
       )}
-      <p className="note">チェックすると完了になります。再読み込みするとTodoは消えます。</p>
+      {storageError && <p className="note" role="alert">{storageError}</p>}
+      <p className="note">チェックすると完了になります。Todoはこのブラウザに保存されます。</p>
     </main>
   );
 }
