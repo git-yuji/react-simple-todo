@@ -1,16 +1,25 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import TodoForm from './components/TodoForm';
 import TodoItem from './components/TodoItem';
 import TodoFilters from './components/TodoFilters';
 import type { Todo } from './types/todo';
 import { filterTodos } from './utils/filterTodos';
 import type { TodoStatus } from './utils/filterTodos';
+import { loadTodos, saveTodos } from './utils/todoStorage';
 
 export default function App() {
   // state（状態）が変わると、Reactが画面を更新します。
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const [initialStorage] = useState(loadTodos);
+  const [todos, setTodos] = useState<Todo[]>(initialStorage.todos);
+  const [storageError, setStorageError] = useState(initialStorage.error);
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState<TodoStatus>('all');
+
+  useEffect(() => {
+    // 初回は書き込まず、ユーザーがTodoを変更したときだけ保存します。
+    if (todos === initialStorage.todos) return;
+    setStorageError(saveTodos(todos));
+  }, [todos, initialStorage]);
 
   function addTodo(title: string) {
     const newTodo: Todo = { id: crypto.randomUUID(), title, completed: false };
@@ -75,7 +84,8 @@ export default function App() {
           ))}
         </ul>
       )}
-      <p className="note">チェックすると完了になります。再読み込みするとTodoは消えます。</p>
+      {storageError && <p className="note" role="alert">{storageError}</p>}
+      <p className="note">チェックすると完了になります。Todoはこのブラウザに保存されます。</p>
     </main>
   );
 }
