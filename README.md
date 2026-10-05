@@ -31,10 +31,21 @@ npm run dev
 
 保存データが壊れている場合や形式が違う場合は、案内を表示して空の一覧で開始します。読み込み時には保存データを書き換えず、次にTodoを変更して保存できたときに置き換えます。localStorageが使えない場合も画面上の操作はできますが、保存に失敗すると案内を表示します。
 
+### 複数タブでの編集
+
+保存時にはWeb Locks APIでタブ間の処理を順番に行い、ロック内で読み直した最新データへ操作を反映します。`storage`イベントとタブへ戻ったときの再読み込みで表示も同期します。
+
+- 別々のTodoの追加・変更は両方を残します。
+- 同じTodoの完了状態は、ロック内で後から処理した指定を採用します。同時に「完了」にしても二重の切り替えで未完了には戻りません。
+- 削除済みのTodoへの完了状態の変更は無視します。削除と状態変更が競合してもTodoは復活しません。
+- 保存に失敗した操作は画面内で保持し、次の編集で最新データへまとめて反映を再試行します。
+
+Web Locks APIを利用できないブラウザや実行環境では、競合する書き込みを避けるため保存せず案内を表示します。画面上の操作はできますが、再読み込みすると未保存の変更は消えます。
+
 ## コードを読む順番
 
 1. `src/main.tsx`：Reactの画面をHTMLに表示する入口です。
-2. `src/App.tsx`：Todo一覧の状態と追加・完了切り替え・削除を管理します。
+2. `src/App.tsx`：Todo一覧と追加・完了切り替え・削除の操作を画面につなぎます。
 3. `src/components/TodoForm.tsx`：入力文字の状態と追加フォームを管理します。
 4. `src/components/TodoItem.tsx`：1件のTodoを表示します。
 5. `src/types/todo.ts`：複数のコンポーネントで共有するTodoの型です。
@@ -42,12 +53,15 @@ npm run dev
 7. `src/components/TodoFilters.tsx`：検索入力と完了状態の切り替えです。
 8. `src/utils/filterTodos.ts`：検索と完了状態の両方に一致するTodoを取り出します。
 9. `src/utils/todoStorage.ts`：保存データの確認・読み込み・保存と失敗時の処理です。
+10. `src/hooks/useStoredTodos.ts`：Todoの状態・タブ間同期・操作の順次処理と保存の再試行を管理します。
 
 ## 学習ポイント
 
 - **useState**：入力文字とTodo一覧を保存します。更新関数を呼ぶと画面も更新されます。
 - **useState(loadTodos)**：初回表示時に保存済みのTodoを読み込みます。
-- **useEffect**：Todo一覧を変更したあとにlocalStorageへ保存します。
+- **useEffect**：他タブの保存を受け取るイベントを登録・解除します。
+- **useRef**：未保存の操作と連続操作の処理順を保持します。
+- **Web Locks API**：最新データの読み込みから保存までをタブ間で順番に処理します。
 - **JSON.stringify / JSON.parse**：Todoの配列と保存用の文字列を変換します。読み込み時には型とIDの重複も確認します。
 - **onChange / onSubmit / onClick**：入力・送信・クリックに応じて関数を実行します。
 - **map**：Todo一覧を表示したり、指定したTodoの完了状態を変えたりします。
@@ -85,13 +99,16 @@ JSXを含むTypeScriptファイルの拡張子は`.tsx`です。`tsconfig.json`�
 10. 絞り込み中にTodoを変更して再読み込みしても、非表示だったTodoが残っている。最後の1件を削除して再読み込みすると空の一覧になる。
 11. 開発者ツールでlocalStorageの`react-simple-todo.todos`に不正なJSONや形式が違うデータを設定して再読み込みすると、案内が表示され、空の一覧からTodoを追加できる。
 12. ブラウザの保存制限などでlocalStorageへの書き込みが失敗した場合は、案内が表示されても追加・完了切り替え・削除ができる。
+13. 同じページを2つのタブで開き、同時に別々のTodoを追加する。両方のタブと再読み込み後の一覧に2件とも残る。
+14. 同じTodoの完了切り替えと削除を別のタブで同時に行う。再読み込みしても削除したTodoが復活しない。
 
 ```sh
+npm test
 npm run typecheck
 npm run build
 npm run preview
 ```
 
-`typecheck`は型の誤りを確認します。`build`は型チェック後に公開用ファイルを`dist`に作成し、`preview`はその結果をローカルで確認します。
+`test`は複数タブの競合・保存失敗・復旧の回帰テストを実行します。`typecheck`は型の誤りを確認します。`build`は型チェック後に公開用ファイルを`dist`に作成し、`preview`はその結果をローカルで確認します。
 
 公式資料：[React](https://react.dev/learn) / [Vite](https://vite.dev/guide/) / [TypeScriptの設定](https://www.typescriptlang.org/tsconfig/)

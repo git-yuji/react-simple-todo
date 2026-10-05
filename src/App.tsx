@@ -1,43 +1,30 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import TodoForm from './components/TodoForm';
 import TodoItem from './components/TodoItem';
 import TodoFilters from './components/TodoFilters';
 import type { Todo } from './types/todo';
 import { filterTodos } from './utils/filterTodos';
 import type { TodoStatus } from './utils/filterTodos';
-import { loadTodos, saveTodos } from './utils/todoStorage';
+import { useStoredTodos } from './hooks/useStoredTodos';
 
 export default function App() {
   // state（状態）が変わると、Reactが画面を更新します。
-  const [initialStorage] = useState(loadTodos);
-  const [todos, setTodos] = useState<Todo[]>(initialStorage.todos);
-  const [storageError, setStorageError] = useState(initialStorage.error);
+  const { todos, storageError, changeTodo } = useStoredTodos();
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState<TodoStatus>('all');
 
-  useEffect(() => {
-    // 初回は書き込まず、ユーザーがTodoを変更したときだけ保存します。
-    if (todos === initialStorage.todos) return;
-    setStorageError(saveTodos(todos));
-  }, [todos, initialStorage]);
-
   function addTodo(title: string) {
     const newTodo: Todo = { id: crypto.randomUUID(), title, completed: false };
-    setTodos((currentTodos) => [...currentTodos, newTodo]);
+    changeTodo({ type: 'add', todo: newTodo });
   }
 
   function toggleTodo(id: string) {
-    // mapで対象のTodoだけを更新した、新しい配列を作ります。
-    setTodos((currentTodos) =>
-      currentTodos.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo,
-      ),
-    );
+    const todo = todos.find((item) => item.id === id);
+    if (todo) changeTodo({ type: 'set-completed', id, completed: !todo.completed });
   }
 
   function deleteTodo(id: string) {
-    // filterで削除対象以外のTodoを残します。
-    setTodos((currentTodos) => currentTodos.filter((todo) => todo.id !== id));
+    changeTodo({ type: 'delete', id });
   }
 
   const remainingCount = todos.filter((todo) => !todo.completed).length;
