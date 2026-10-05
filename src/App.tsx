@@ -9,18 +9,13 @@ import { useStoredTodos } from './hooks/useStoredTodos';
 
 export default function App() {
   // state（状態）が変わると、Reactが画面を更新します。
-  const { todos, storageError, changeTodo } = useStoredTodos();
+  const { todos, storageError, changeTodo, toggleTodo } = useStoredTodos();
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState<TodoStatus>('all');
 
   function addTodo(title: string) {
     const newTodo: Todo = { id: crypto.randomUUID(), title, completed: false };
     changeTodo({ type: 'add', todo: newTodo });
-  }
-
-  function toggleTodo(id: string) {
-    const todo = todos.find((item) => item.id === id);
-    if (todo) changeTodo({ type: 'set-completed', id, completed: !todo.completed });
   }
 
   function deleteTodo(id: string) {
