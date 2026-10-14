@@ -22,6 +22,10 @@ export default function App() {
     changeTodo({ type: 'delete', id });
   }
 
+  function renameTodo(id: string, title: string) {
+    changeTodo({ type: 'rename', id, title });
+  }
+
   const remainingCount = todos.filter((todo) => !todo.completed).length;
   const visibleTodos = filterTodos(todos, query, status);
 
@@ -67,6 +71,7 @@ export default function App() {
               todo={todo}
               onToggle={toggleTodo}
               onDelete={deleteTodo}
+              onRename={renameTodo}
             />
           ))}
         </ul>

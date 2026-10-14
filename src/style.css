@@ -131,6 +131,13 @@ input[type='checkbox'] { width: 20px; height: 20px; margin: 0; flex-shrink: 0; a
 .completed .todo-label span { text-decoration: line-through; color: #748094; }
 .delete-button { flex-shrink: 0; padding: 8px 12px; background: transparent; color: var(--muted); font-size: 12px; }
 .delete-button:hover:enabled { background: #fff1f2; color: #a7213c; }
+.todo-actions { display: flex; flex-shrink: 0; gap: 2px; }
+.edit-button { padding: 8px 12px; background: transparent; color: var(--muted); font-size: 12px; }
+.edit-button:hover:enabled { background: #eef3ff; color: var(--accent); }
+.edit-form { width: 100%; min-width: 0; padding: 4px 0; }
+.edit-form > label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 600; }
+.edit-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.edit-hint { margin: 8px 0 0; color: var(--muted); font-size: 12px; }
 .note { margin: 24px 0 0; color: var(--muted); font-size: 12px; }
 .note[role='alert'] { padding: 12px 14px; border: 1px solid #ebd2a0; border-radius: 8px; background: #fffbef; color: #78500d; }
 
