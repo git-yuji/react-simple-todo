@@ -32,8 +32,10 @@ export default function App() {
 
   return (
     <main className="todo-app">
-      <header>
-        <h1>はじめてのTodo</h1>
+      <header className="app-header">
+        <p className="eyebrow">MY TODO</p>
+        <h1>やることリスト</h1>
+        <p className="description">今日のやることを、ひとつずつ。</p>
       </header>
 
       <TodoForm onAdd={addTodo} />
@@ -46,9 +48,12 @@ export default function App() {
         onReset={resetFilters}
       />
 
-      <p className="summary" role="status">
-        全{todos.length}件・残り{remainingCount}件・表示{visibleTodos.length}件
-      </p>
+      <div className="list-heading">
+        <h2>Todo一覧</h2>
+        <p className="summary" role="status">
+          全{todos.length}件・残り{remainingCount}件・表示{visibleTodos.length}件
+        </p>
+      </div>
 
       {todos.length === 0 ? (
         <p className="empty">Todoはまだありません。</p>
