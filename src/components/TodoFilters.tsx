@@ -1,6 +1,8 @@
 import type { TodoStatus } from '../utils/filterTodos';
+import type { Ref } from 'react';
 
 type TodoFiltersProps = {
+  searchInputRef: Ref<HTMLInputElement>;
   query: string;
   status: TodoStatus;
   onQueryChange: (query: string) => void;
@@ -15,12 +17,13 @@ const statusOptions: { value: TodoStatus; label: string }[] = [
 ];
 
 export default function TodoFilters({
-  query, status, onQueryChange, onStatusChange, onReset,
+  searchInputRef, query, status, onQueryChange, onStatusChange, onReset,
 }: TodoFiltersProps) {
   return (
     <section className="todo-filters" aria-label="Todoの検索・絞り込み">
       <label htmlFor="todo-search">Todoを検索</label>
       <input
+        ref={searchInputRef}
         id="todo-search"
         type="search"
         value={query}

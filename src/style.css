@@ -136,6 +136,7 @@ input[type='checkbox'] { width: 20px; height: 20px; margin: 0; flex-shrink: 0; a
 .edit-button:hover:enabled { background: #eef3ff; color: var(--accent); }
 .edit-form { width: 100%; min-width: 0; padding: 4px 0; }
 .edit-form > label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 600; }
+.edit-form > .edit-status { display: flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 400; cursor: pointer; }
 .edit-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .edit-hint { margin: 8px 0 0; color: var(--muted); font-size: 12px; }
 .note { margin: 24px 0 0; color: var(--muted); font-size: 12px; }
