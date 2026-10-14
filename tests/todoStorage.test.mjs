@@ -64,6 +64,54 @@ test('deletion wins against completion in either order', async () => {
   }
 });
 
+test('rename and completion preserve each other across stale tabs', async () => {
+  const changes = [
+    { type: 'rename', id: 'A', title: '  New title  ' },
+    { type: 'set-completed', id: 'A', completed: true },
+  ];
+  for (const ordered of [changes, [...changes].reverse()]) {
+    data.set(TODO_STORAGE_KEY, JSON.stringify([todo('A'), todo('B')]));
+    await Promise.all(ordered.map((change) => updateStoredTodos([change], [todo('A')])));
+    assert.deepEqual(loadTodos().todos, [
+      { id: 'A', title: 'New title', completed: true }, todo('B'),
+    ]);
+  }
+});
+
+test('rename never restores a deleted todo in either operation order', async () => {
+  const changes = [{ type: 'rename', id: 'A', title: 'New title' }, { type: 'delete', id: 'A' }];
+  for (const ordered of [changes, [...changes].reverse()]) {
+    data.set(TODO_STORAGE_KEY, JSON.stringify([todo('A')]));
+    await Promise.all(ordered.map((change) => updateStoredTodos([change], [todo('A')])));
+    assert.deepEqual(loadTodos().todos, []);
+  }
+});
+
+test('later rename wins and invalid titles leave the existing title intact', async () => {
+  data.set(TODO_STORAGE_KEY, JSON.stringify([todo('A')]));
+  await Promise.all(['First', 'Last'].map((title) =>
+    updateStoredTodos([{ type: 'rename', id: 'A', title }], [todo('A')])));
+  for (const title of ['   ', 'x'.repeat(201)]) {
+    await updateStoredTodos([{ type: 'rename', id: 'A', title }], []);
+    assert.equal(loadTodos().todos[0].title, 'Last');
+  }
+});
+
+test('a failed rename can be retried without losing another tab’s completion', async () => {
+  data.set(TODO_STORAGE_KEY, JSON.stringify([todo('A')]));
+  const changes = [{ type: 'rename', id: 'A', title: 'Renamed' }];
+  const setItem = window.localStorage.setItem;
+  window.localStorage.setItem = () => { throw new Error('Quota exceeded'); };
+  const failed = await updateStoredTodos(changes, [todo('A')]);
+  assert.ok(failed.error);
+  assert.equal(failed.todos[0].title, 'Renamed');
+  window.localStorage.setItem = setItem;
+  data.set(TODO_STORAGE_KEY, JSON.stringify([{ ...todo('A'), completed: true }]));
+  const result = await updateStoredTodos(changes, failed.todos);
+  assert.equal(result.error, null);
+  assert.deepEqual(loadTodos().todos, [{ id: 'A', title: 'Renamed', completed: true }]);
+});
+
 test('unsupported locks never write a stale snapshot', async () => {
   navigator.locks = undefined;
   data.set(TODO_STORAGE_KEY, JSON.stringify([todo('A')]));

@@ -10,6 +10,7 @@ type LoadResult = {
 export type TodoChange =
   | { type: 'add'; todo: Todo }
   | { type: 'set-completed'; id: string; completed: boolean }
+  | { type: 'rename'; id: string; title: string }
   | { type: 'delete'; id: string };
 
 export function applyTodoChange(todos: Todo[], change: TodoChange): Todo[] {
@@ -20,6 +21,11 @@ export function applyTodoChange(todos: Todo[], change: TodoChange): Todo[] {
     case 'set-completed':
       return todos.map((todo) => todo.id === change.id
         ? { ...todo, completed: change.completed } : todo);
+    case 'rename': {
+      const title = change.title.trim();
+      if (title === '' || title.length > 200) return todos;
+      return todos.map((todo) => todo.id === change.id ? { ...todo, title } : todo);
+    }
     case 'delete':
       return todos.filter((todo) => todo.id !== change.id);
   }

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import TodoForm from './components/TodoForm';
 import TodoItem from './components/TodoItem';
 import TodoFilters from './components/TodoFilters';
@@ -12,6 +12,27 @@ export default function App() {
   const { todos, storageError, changeTodo, toggleTodo } = useStoredTodos();
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState<TodoStatus>('all');
+  const [editingIds, setEditingIds] = useState<string[]>([]);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    // 別タブで削除されたTodoの編集情報も片付けます。
+    setEditingIds((ids) => ids.some((id) => !todos.some((todo) => todo.id === id))
+      ? ids.filter((id) => todos.some((todo) => todo.id === id)) : ids);
+  }, [todos]);
+
+  function startEditing(id: string) {
+    setEditingIds((ids) => ids.includes(id) ? ids : [...ids, id]);
+  }
+
+  function finishEditing(id: string, title?: string) {
+    const todo = todos.find((item) => item.id === id);
+    // 保存・キャンセル後に行が消える場合は、残る検索欄へフォーカスを戻します。
+    if (!todo || filterTodos([{ ...todo, title: title ?? todo.title }], query, status).length === 0) {
+      searchInputRef.current?.focus();
+    }
+    setEditingIds((ids) => ids.filter((editingId) => editingId !== id));
+  }
 
   function addTodo(title: string) {
     const newTodo: Todo = { id: crypto.randomUUID(), title, completed: false };
@@ -22,8 +43,15 @@ export default function App() {
     changeTodo({ type: 'delete', id });
   }
 
+  function renameTodo(id: string, title: string) {
+    changeTodo({ type: 'rename', id, title });
+  }
+
   const remainingCount = todos.filter((todo) => !todo.completed).length;
-  const visibleTodos = filterTodos(todos, query, status);
+  const matchingTodos = filterTodos(todos, query, status);
+  const matchingIds = new Set(matchingTodos.map((todo) => todo.id));
+  // 条件から外れても、編集中の行は保存・キャンセルまで同じ位置に残します。
+  const visibleTodos = todos.filter((todo) => matchingIds.has(todo.id) || editingIds.includes(todo.id));
 
   function resetFilters() {
     setQuery('');
@@ -41,6 +69,7 @@ export default function App() {
       <TodoForm onAdd={addTodo} />
 
       <TodoFilters
+        searchInputRef={searchInputRef}
         query={query}
         status={status}
         onQueryChange={setQuery}
@@ -67,6 +96,10 @@ export default function App() {
               todo={todo}
               onToggle={toggleTodo}
               onDelete={deleteTodo}
+              onRename={renameTodo}
+              onEditStart={startEditing}
+              onEditEnd={finishEditing}
+              outsideFilters={!matchingIds.has(todo.id)}
             />
           ))}
         </ul>
