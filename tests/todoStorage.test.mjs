@@ -112,6 +112,72 @@ test('a failed rename can be retried without losing another tab’s completion',
   assert.deepEqual(loadTodos().todos, [{ id: 'A', title: 'Renamed', completed: true }]);
 });
 
+test('期限のない既存データと期限付きデータを変更せずに読み込む', () => {
+  const todos = [todo('old'), { ...todo('new'), dueDate: '2026-10-16' }, { ...todo('cleared'), dueDate: null }];
+  const saved = JSON.stringify(todos);
+  data.set(TODO_STORAGE_KEY, saved);
+  assert.deepEqual(loadTodos(), { todos, error: null });
+  assert.equal(data.get(TODO_STORAGE_KEY), saved);
+});
+
+test('不正な期限を持つ保存データは読み込みエラーにし、元のデータは残す', () => {
+  for (const dueDate of ['2026-02-30', '2026-13-01', '', 20261016, {}, '2026-10-16\n']) {
+    const saved = JSON.stringify([{ ...todo('A'), dueDate }]);
+    data.set(TODO_STORAGE_KEY, saved);
+    assert.ok(loadTodos().error);
+    assert.equal(data.get(TODO_STORAGE_KEY), saved);
+  }
+});
+
+test('期限付きで追加し、変更・解除して再読み込みできる', async () => {
+  await updateStoredTodos([{ type: 'add', todo: { ...todo('A'), dueDate: '2026-10-16' } }], []);
+  assert.equal(loadTodos().todos[0].dueDate, '2026-10-16');
+  await updateStoredTodos([{ type: 'set-due-date', id: 'A', dueDate: '2026-10-17' }], []);
+  assert.equal(loadTodos().todos[0].dueDate, '2026-10-17');
+  for (const dueDate of ['', '2026-02-30', '2026-10-17\n']) {
+    await updateStoredTodos([{ type: 'set-due-date', id: 'A', dueDate }], []);
+    assert.equal(loadTodos().todos[0].dueDate, '2026-10-17');
+  }
+  await updateStoredTodos([{ type: 'set-due-date', id: 'A', dueDate: null }], []);
+  assert.equal(loadTodos().todos[0].dueDate, null);
+});
+
+test('期限・タイトル・完了状態の別タブでの変更を、処理順に関係なく保持する', async () => {
+  const changes = [
+    { type: 'set-due-date', id: 'A', dueDate: '2026-10-16' },
+    { type: 'rename', id: 'A', title: '更新後' },
+    { type: 'set-completed', id: 'A', completed: true },
+  ];
+  for (const order of [[0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]]) {
+    data.set(TODO_STORAGE_KEY, JSON.stringify([todo('A'), todo('B')]));
+    await Promise.all(order.map((index) => updateStoredTodos([changes[index]], [todo('A')])));
+    assert.deepEqual(loadTodos().todos, [
+      { id: 'A', title: '更新後', completed: true, dueDate: '2026-10-16' }, todo('B'),
+    ]);
+  }
+});
+
+test('同じ期限の変更は後の指定を採用し、解除も保存する', async () => {
+  data.set(TODO_STORAGE_KEY, JSON.stringify([todo('A')]));
+  await Promise.all(['2026-10-16', '2026-10-17'].map((dueDate) =>
+    updateStoredTodos([{ type: 'set-due-date', id: 'A', dueDate }], [todo('A')])));
+  assert.equal(loadTodos().todos[0].dueDate, '2026-10-17');
+  await Promise.all([
+    updateStoredTodos([{ type: 'set-due-date', id: 'A', dueDate: null }], []),
+    updateStoredTodos([{ type: 'rename', id: 'A', title: '解除後' }], []),
+  ]);
+  assert.deepEqual(loadTodos().todos, [{ id: 'A', title: '解除後', completed: false, dueDate: null }]);
+});
+
+test('期限の設定と削除が競合してもTodoは復活しない', async () => {
+  const changes = [{ type: 'set-due-date', id: 'A', dueDate: '2026-10-16' }, { type: 'delete', id: 'A' }];
+  for (const ordered of [changes, [...changes].reverse()]) {
+    data.set(TODO_STORAGE_KEY, JSON.stringify([todo('A')]));
+    await Promise.all(ordered.map((change) => updateStoredTodos([change], [todo('A')])));
+    assert.deepEqual(loadTodos().todos, []);
+  }
+});
+
 test('unsupported locks never write a stale snapshot', async () => {
   navigator.locks = undefined;
   data.set(TODO_STORAGE_KEY, JSON.stringify([todo('A')]));

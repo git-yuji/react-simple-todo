@@ -44,7 +44,7 @@ h1 { margin: 0; font-size: clamp(25px, 5vw, 30px); font-weight: 700; letter-spac
   font-weight: 600;
 }
 .input-row { display: flex; gap: 10px; }
-input[type='text'], input[type='search'] {
+input[type='text'], input[type='search'], input[type='date'] {
   width: 100%;
   min-width: 0;
   min-height: 46px;
@@ -125,6 +125,16 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 }
 .todo-list { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--border); }
 .todo-list li { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.todo-content { flex: 1; min-width: 0; }
+.due-date { margin: 0 0 4px 32px; color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
+.due-overdue { color: #a7213c; font-weight: 600; }
+.due-today { color: #85540b; font-weight: 600; }
+.due-date-field { margin-top: 14px; }
+.due-date-field label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; }
+.due-date-field input { width: 180px; max-width: 100%; }
+.due-date-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.due-date-controls button { font-size: 12px; }
+.edit-form .due-date { margin: 8px 0; }
 .todo-label { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; min-height: 44px; cursor: pointer; font-size: 14px; }
 .todo-label span { overflow-wrap: anywhere; }
 input[type='checkbox'] { width: 20px; height: 20px; margin: 0; flex-shrink: 0; accent-color: var(--accent); cursor: pointer; }
@@ -151,4 +161,5 @@ input[type='checkbox'] { width: 20px; height: 20px; margin: 0; flex-shrink: 0; a
   .status-filters { flex: 1; }
   .status-filters button { flex: 1; padding-inline: 10px; }
   .reset-filters { margin-left: auto; }
+  .todo-actions { flex-direction: column; gap: 0; }
 }
