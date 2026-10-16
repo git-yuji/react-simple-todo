@@ -12,7 +12,7 @@
 
 * { box-sizing: border-box; }
 body { margin: 0; padding: 64px 24px; }
-button, input { font: inherit; }
+button, input, select { font: inherit; }
 button, input[type='checkbox'] { touch-action: manipulation; }
 
 .todo-app {
@@ -55,6 +55,9 @@ input[type='text'], input[type='search'], input[type='date'] {
   color: inherit;
   font-size: 14px;
 }
+.deadline-filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+.deadline-filters label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; }
+.deadline-filters select { width: 100%; min-width: 0; min-height: 46px; padding: 10px 8px; border: 1px solid #ccd3dd; border-radius: 8px; background: #fff; color: inherit; font-size: 14px; }
 input::placeholder { color: #737e8e; }
 input[type='search'] { background: #f9fafb; }
 button {
