@@ -4,9 +4,11 @@ type TodoDueDateProps = {
   dueDate?: string | null;
   completed: boolean;
   today: string;
+  showEmpty?: boolean;
 };
 
-export default function TodoDueDate({ dueDate, completed, today }: TodoDueDateProps) {
+export default function TodoDueDate({ dueDate, completed, today, showEmpty = false }: TodoDueDateProps) {
+  if (!dueDate && !showEmpty) return null;
   const state = dueDateState(dueDate, completed, today);
   return (
     <p className={`due-date due-${state}`}>
