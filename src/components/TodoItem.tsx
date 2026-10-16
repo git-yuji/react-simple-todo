@@ -12,7 +12,7 @@ type TodoItemProps = {
   onSetDueDate: (id: string, dueDate: string | null) => void;
   today: string;
   onEditStart: (id: string) => void;
-  onEditEnd: (id: string, title?: string) => void;
+  onEditEnd: (id: string, title?: string, dueDate?: string | null) => void;
   outsideFilters: boolean;
 };
 
@@ -47,7 +47,7 @@ export default function TodoItem({ todo, onToggle, onDelete, onRename, onSetDueD
     if (draftDueDate !== null && draftDueDate !== (todo.dueDate ?? '')) {
       onSetDueDate(todo.id, draftDueDate || null);
     }
-    onEditEnd(todo.id, title);
+    onEditEnd(todo.id, title, editingDueDate || null);
     setIsEditing(false);
   }
 
