@@ -72,12 +72,12 @@ export default function App() {
   return (
     <main className="todo-app">
       <header className="app-header">
-        <p className="eyebrow">MY TODO</p>
         <h1>やることリスト</h1>
         <p className="description">今日のやることを、ひとつずつ。</p>
       </header>
 
       <TodoForm onAdd={addTodo} />
+      {storageError && <p className="note" role="alert">{storageError}</p>}
 
       <TodoFilters
         searchInputRef={searchInputRef}
@@ -100,9 +100,18 @@ export default function App() {
       </div>
 
       {todos.length === 0 ? (
-        <p className="empty">Todoはまだありません。</p>
+        <div className="empty">
+          <p>Todoはまだありません。</p>
+          <p className="empty-hint">上の入力欄から、最初のやることを追加しましょう。</p>
+        </div>
       ) : visibleTodos.length === 0 ? (
-        <p className="empty">条件に一致するTodoはありません。</p>
+        <div className="empty">
+          <p>条件に一致するTodoはありません。</p>
+          <button type="button" className="empty-reset" onClick={() => {
+            resetFilters();
+            searchInputRef.current?.focus();
+          }}>すべてのTodoを表示</button>
+        </div>
       ) : (
         <ul className="todo-list">
           {visibleTodos.map((todo) => (
@@ -121,8 +130,7 @@ export default function App() {
           ))}
         </ul>
       )}
-      {storageError && <p className="note" role="alert">{storageError}</p>}
-      <p className="note">チェックすると完了になります。Todoはこのブラウザに保存されます。</p>
+      <p className="note">{storageError ? '保存に問題があります。上の案内をご確認ください。' : 'Todoはこのブラウザに自動保存されます。'}</p>
     </main>
   );
 }

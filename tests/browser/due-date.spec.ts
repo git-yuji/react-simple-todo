@@ -21,10 +21,11 @@ test('期限日の保存・解除・同期と現地日付での表示を確認�
   }
 
   await test.step('期限なしの既存データと、今日・過去・未来の期限を表示する', async () => {
-    await expect(row('既存のTodo').getByText('期限なし', { exact: true })).toBeVisible();
+    await expect(row('既存のTodo').locator('.due-date')).toHaveCount(0);
     await expect(page.getByRole('alert')).toHaveCount(0);
     for (const [name, dueDate] of [['今日', '2026-10-16'], ['昨日', '2026-10-15'], ['明日', '2026-10-17']]) {
       await page.getByLabel('新しいTodo', { exact: true }).fill(name);
+      await page.getByRole('button', { name: '期限を追加', exact: true }).click();
       await page.locator('#new-due-date').fill(dueDate);
       await page.getByRole('button', { name: '追加', exact: true }).click();
       await expect(page.locator('#new-due-date')).toHaveValue('');
@@ -56,7 +57,7 @@ test('期限日の保存・解除・同期と現地日付での表示を確認�
     await editor.getByRole('button', { name: '期限を解除', exact: true }).click();
     await save();
     await page.reload();
-    await expect(row('既存のTodo').getByText('期限なし', { exact: true })).toBeVisible();
+    await expect(row('既存のTodo').locator('.due-date')).toHaveCount(0);
   });
 
   const other = await context.newPage();

@@ -69,7 +69,7 @@ test('絞り込みと別タブ更新から編集中の入力とキーボード�
     await expect(editor).toHaveCount(0);
     await expect(search).toBeFocused();
     await page.keyboard.press('Tab');
-    await expect(page.getByRole('button', { name: 'すべて', exact: true })).toBeFocused();
+    await expect(page.getByRole('button', { name: '表示設定', exact: true })).toBeFocused();
     await expect.poll(savedTitle).toBe('パン');
   });
 
