@@ -1,4 +1,5 @@
 import type { Todo } from '../types/todo';
+import { isDueDate } from './dueDate.ts';
 
 export const TODO_STORAGE_KEY = 'react-simple-todo.todos';
 
@@ -11,6 +12,7 @@ export type TodoChange =
   | { type: 'add'; todo: Todo }
   | { type: 'set-completed'; id: string; completed: boolean }
   | { type: 'rename'; id: string; title: string }
+  | { type: 'set-due-date'; id: string; dueDate: string | null }
   | { type: 'delete'; id: string };
 
 export function applyTodoChange(todos: Todo[], change: TodoChange): Todo[] {
@@ -26,6 +28,9 @@ export function applyTodoChange(todos: Todo[], change: TodoChange): Todo[] {
       if (title === '' || title.length > 200) return todos;
       return todos.map((todo) => todo.id === change.id ? { ...todo, title } : todo);
     }
+    case 'set-due-date':
+      if (change.dueDate !== null && !isDueDate(change.dueDate)) return todos;
+      return todos.map((todo) => todo.id === change.id ? { ...todo, dueDate: change.dueDate } : todo);
     case 'delete':
       return todos.filter((todo) => todo.id !== change.id);
   }
@@ -35,7 +40,8 @@ function isTodo(value: unknown): value is Todo {
   if (typeof value !== 'object' || value === null) return false;
   return 'id' in value && typeof value.id === 'string' && value.id.trim() !== ''
     && 'title' in value && typeof value.title === 'string' && value.title.trim() !== ''
-    && 'completed' in value && typeof value.completed === 'boolean';
+    && 'completed' in value && typeof value.completed === 'boolean'
+    && (!('dueDate' in value) || value.dueDate === null || isDueDate(value.dueDate));
 }
 
 export function loadTodos(): LoadResult {

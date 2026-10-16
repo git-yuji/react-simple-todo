@@ -6,10 +6,12 @@ import type { Todo } from './types/todo';
 import { filterTodos } from './utils/filterTodos';
 import type { TodoStatus } from './utils/filterTodos';
 import { useStoredTodos } from './hooks/useStoredTodos';
+import { useToday } from './hooks/useToday';
 
 export default function App() {
   // state（状態）が変わると、Reactが画面を更新します。
   const { todos, storageError, changeTodo, toggleTodo } = useStoredTodos();
+  const today = useToday();
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState<TodoStatus>('all');
   const [editingIds, setEditingIds] = useState<string[]>([]);
@@ -34,8 +36,8 @@ export default function App() {
     setEditingIds((ids) => ids.filter((editingId) => editingId !== id));
   }
 
-  function addTodo(title: string) {
-    const newTodo: Todo = { id: crypto.randomUUID(), title, completed: false };
+  function addTodo(title: string, dueDate: string | null) {
+    const newTodo: Todo = { id: crypto.randomUUID(), title, completed: false, dueDate };
     changeTodo({ type: 'add', todo: newTodo });
   }
 
@@ -45,6 +47,10 @@ export default function App() {
 
   function renameTodo(id: string, title: string) {
     changeTodo({ type: 'rename', id, title });
+  }
+
+  function setDueDate(id: string, dueDate: string | null) {
+    changeTodo({ type: 'set-due-date', id, dueDate });
   }
 
   const remainingCount = todos.filter((todo) => !todo.completed).length;
@@ -97,6 +103,8 @@ export default function App() {
               onToggle={toggleTodo}
               onDelete={deleteTodo}
               onRename={renameTodo}
+              onSetDueDate={setDueDate}
+              today={today}
               onEditStart={startEditing}
               onEditEnd={finishEditing}
               outsideFilters={!matchingIds.has(todo.id)}
