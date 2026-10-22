@@ -16,6 +16,7 @@ test('期限の並べ替え・絞り込みと編集中の保護を確認する',
   ];
   await page.evaluate((todos) => localStorage.setItem('react-simple-todo.todos', JSON.stringify(todos)), original);
   await page.reload();
+  await page.getByRole('button', { name: '表示設定', exact: true }).click();
   const due = page.getByLabel('期限で絞り込み', { exact: true });
   const sort = page.getByLabel('並べ替え', { exact: true });
   const search = page.getByRole('searchbox', { name: 'Todoを検索', exact: true });
@@ -44,7 +45,7 @@ test('期限の並べ替え・絞り込みと編集中の保護を確認する',
     await search.fill('  REACT  ');
     await sort.selectOption('due-date');
     await expect(titles).toHaveText(['React 昨日', 'React 今日']);
-    await page.getByRole('button', { name: '完了', exact: true }).click();
+    await page.getByLabel('完了状態', { exact: true }).selectOption('completed');
     await expect(page.getByText('条件に一致するTodoはありません。', { exact: true })).toBeVisible();
     await reset.click();
     await due.selectOption('none');

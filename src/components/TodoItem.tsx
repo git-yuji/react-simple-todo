@@ -101,7 +101,7 @@ export default function TodoItem({ todo, onToggle, onDelete, onRename, onSetDueD
               <button type="button" disabled={editingDueDate === ''} onClick={() => setDraftDueDate('')}>期限を解除</button>
             </div>
           </div>
-          <TodoDueDate dueDate={editingDueDate} completed={todo.completed} today={today} />
+          <TodoDueDate dueDate={editingDueDate} completed={todo.completed} today={today} showEmpty />
           <div className="edit-actions">
             <button type="submit" disabled={editingTitle.trim() === '' || editingTitle.trim().length > 200}>保存</button>
             <button type="button" onClick={cancelEditing}>キャンセル</button>
